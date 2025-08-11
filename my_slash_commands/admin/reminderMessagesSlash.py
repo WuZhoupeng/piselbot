@@ -14,7 +14,7 @@ class ReminderMessagesSlashCog(commands.Cog):
         name="reminder_messages",
         description="Programma un messaggio per un canale specifico ad un orario specifico"
     )
-    @app_commands.checks.has_role(139807680659) # Ruolo ---> Pisello petulante
+    @app_commands.checks.has_role(1398076806594035773) # Ruolo ---> Pisello petulante
     @app_commands.describe(
         message="Messaggio da inviare al canale",
         time_date="Mettere una data con il formato YYYY-MM-DD (ad esempio 2025-12-31)",
