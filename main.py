@@ -5,11 +5,13 @@ from discord.ext import commands
 import asyncio
 from utils.databaseMessaggi import db_messaggi
 from utils.setupTables import SetupTables
+from aiohttp import web
 
 #load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
 PREFIX = os.getenv("BOT_PREFIX")
+PORT = (os.getenv("PORT", 10000))
 
 intents = discord.Intents.all()
 bot = commands.Bot(
@@ -17,6 +19,18 @@ bot = commands.Bot(
     intents=intents,
     help_command=None
 )
+
+async def status(request):
+    return web.Response(text="OK", status=200)
+
+async def start_server():
+    app = web.Application()
+    app.router.add_get("/", status)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    print(f"Server avviato sulla porta {PORT}")
+    await site.start()
 
 @bot.event
 async def on_ready():
@@ -60,6 +74,8 @@ async def load_cogs():
     await setup_slash_commands(bot)
 
 async def main():
+    await start_server()
+
     bot.db_messaggi = await db_messaggi.create_pool()
 
     await SetupTables(bot.db_messaggi)
