@@ -2,13 +2,14 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 from datetime import datetime
-
+from zoneinfo import ZoneInfo
 
 class ReminderMessagesSlashCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db_pool = bot.db_messaggi
         self.check_send_message.start()
+        self.italy_timezone = ZoneInfo('Europe/Rome')
 
     @discord.app_commands.command(
         name="reminder_messages",
@@ -24,9 +25,9 @@ class ReminderMessagesSlashCog(commands.Cog):
         time_hour = time_hour or '19:00'
         time_date_datetime = datetime.strptime(time_date, "%Y-%m-%d").date()
         time_hour_datetime = datetime.strptime(time_hour, "%H:%M").time()
-        time_date_hour = datetime.combine(time_date_datetime, time_hour_datetime)
+        time_date_hour = datetime.combine(time_date_datetime, time_hour_datetime, tzinfo=self.italy_timezone)
 
-        if datetime.now() > time_date_hour:
+        if datetime.now(tz=self.italy_timezone) > time_date_hour:
             await interaction.response.send_message("Oh zio, non sei un viaggiatore del tempo")
             return
         
@@ -50,9 +51,9 @@ class ReminderMessagesSlashCog(commands.Cog):
             if message_to_send is None:
                 return
 
-            time_to_send = datetime.combine(message_to_send['date'], message_to_send['time'])
+            time_to_send = datetime.combine(message_to_send['date'], message_to_send['time'], tzinfo=self.italy_timezone)
 
-            if datetime.now() > time_to_send:
+            if datetime.now(tz=self.italy_timezone) > time_to_send:
                 try:
                     channel_send_in = self.bot.get_channel(1382289347285483531) # Test channel ---> 1337486382028951646 | 1382289347285483531
                 
